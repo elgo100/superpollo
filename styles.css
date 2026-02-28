@@ -1,0 +1,59 @@
+body {
+	background-color: #FFCC00;
+}
+
+.hero {
+  background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)),
+  url('img/pollo.jpg') center/cover;
+  padding: 60px 20px;
+}
+
+.section-title {
+  color: #b30000;
+  margin-top: 30px;
+}
+
+.card img {
+	height: 150px;
+	object-fit: cover;
+}
+/* ======================= Mensaje agregado ======================= */
+#mensaje-agregado {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.5s ease;
+  z-index: 9999;
+}
+
+#mensaje-agregado.mostrar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ======================= Cards ======================= */
+.card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+}
+
+.card.aparecer {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ======================= Carrito ======================= */
+.list-group-item.eliminar {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.4s ease;
+}

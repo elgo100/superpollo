@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>El Super Pollo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-danger">
+  <div class="container">
+    <span class="navbar-brand fw-bold">🔥 EL SUPER POLLO 🔥</span>
+    <span class="text-warning fw-bold">2211739094</span>
+  </div>
+</nav>
+
+<header class="hero text-center text-white">
+  <h1>Pollos y Carnes Asadas</h1>
+  <p>Pedidos a domicilio</p>
+  <!-- HORARIO -->
+  <p><strong>Horario de atención:</strong> 10:30 am a 7:30 pm</p>
+</header>
+
+<div class="container my-4">
+
+<h3 class="section-title">🍗 Pollos</h3>
+<div id="pollo" class="row"></div>
+
+<h3 class="section-title">🥩 Costillas</h3>
+<div id="costillas" class="row"></div>
+
+<h3 class="section-title">🌭 Longaniza</h3>
+<div id="longaniza" class="row"></div>
+
+<h3 class="section-title">🍗 Alitas</h3>
+<div id="alitas" class="row"></div>
+
+<h3 class="section-title">🌮 Cochinita Pibil</h3>
+<div id="cochinita" class="row"></div>
+
+<h3 class="section-title">🔥 Promociones</h3>
+<div id="promos" class="row"></div>
+
+<h3 class="section-title">➕ Extras</h3>
+<div id="extras" class="row"></div>
+
+<hr>
+
+<h3 class="text-danger">🛒 Carrito</h3>
+<ul class="list-group mb-2" id="carrito"></ul>
+<h4>Total: $<span id="total">0</span></h4>
+
+<hr>
+
+<h3 class="text-danger">📍 Datos de envío</h3>
+<input class="form-control mb-2" id="direccion" placeholder="Dirección de entrega">
+<button class="btn btn-warning w-100 mb-2" onclick="obtenerUbicacion()">
+📍 Compartir ubicación actual
+</button>
+
+<p id="info-envio"></p>
+
+<p id="distancia"></p>
+<p id="costoEnvio"></p>
+<!-- AVISO ENVÍO -->
+<p class="text-danger fw-bold">
+  El costo de envío depende de la ubicación y la distancia.
+</p>
+
+<!-- MÉTODO DE PAGO -->
+<select class="form-select mb-2" id="metodoPago" onchange="cambiarMetodoPago()">
+  <option value="">Selecciona método de pago</option>
+  <option value="efectivo">Efectivo</option>
+  <option value="tarjeta">Tarjeta</option>
+  <option value="transferencia">Transferencia</option>
+</select>
+
+<!-- EFECTIVO -->
+<div id="divEfectivo" style="display:none;">
+  <input class="form-control mb-2" id="pago" placeholder="¿Con cuánto paga?">
+</div>
+
+<!-- TARJETA O TRANSFERENCIA -->
+<div id="divElectronico" style="display:none;">
+  <p class="text-primary fw-bold">
+    Las instrucciones de pago se enviarán una vez recibido su pedido.
+  </p>
+</div>
+
+<button class="btn btn-success w-100 mt-2" onclick="enviarWhats()">
+📲 Ordenar por WhatsApp
+</button>
+
+<hr>
+
+<h3 class="text-danger">📍 Ubicación</h3>
+<iframe
+  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3773.139314654154!2d-98.2386325!3d18.9694538!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfb9fd46c0f719%3A0x608479dafa2d6560!2sEl%20s%C3%BAper%20pollo!5e0!3m2!1ses-419!2smx!4v1769130497639!5m2!1ses-419!2smx"
+  width="100%"
+  height="300"
+  style="border:0;"
+  allowfullscreen
+  loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade">
+</iframe>
+
+</div>
+
+<div id="mensaje-agregado">¡Agregado al carrito!</div>
+
+<script>
+function cambiarMetodoPago(){
+  let metodo = document.getElementById("metodoPago").value;
+  let efectivo = document.getElementById("divEfectivo");
+  let electronico = document.getElementById("divElectronico");
+
+  efectivo.style.display = "none";
+  electronico.style.display = "none";
+
+  if(metodo === "efectivo"){
+    efectivo.style.display = "block";
+  } else if(metodo === "tarjeta" || metodo === "transferencia"){
+    electronico.style.display = "block";
+  }
+}
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
