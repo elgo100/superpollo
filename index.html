@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -7,6 +7,45 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+
+<style>
+.hero{
+  position: relative;
+  background-image: url("img/LOGO.jpeg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  min-height: 250px;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* capa oscura encima del logo */
+.hero::before{
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55); /* sombra nublada */
+  z-index: 1;
+}
+
+/* texto arriba de la sombra */
+.hero *{
+  position: relative;
+  z-index: 2;
+}background-image: url("img/LOGO.jpeg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  min-height: 300px;
+  background-color: black;
+}
+</style>
 </head>
 
 <body>
@@ -15,16 +54,61 @@
   <div class="container">
     <span class="navbar-brand fw-bold">🔥 EL SUPER POLLO 🔥</span>
     <span class="text-warning fw-bold">2211739094</span>
+    <button class="btn btn-warning" onclick="abrirAdmin()">Administración</button>
   </div>
 </nav>
 
-<header class="hero text-center text-white">
-  <h1>Pollos y Carnes Asadas</h1>
-  <p>Pedidos a domicilio</p>
-  <!-- HORARIO -->
-  <p><strong>Horario de atención:</strong> 10:30 am a 7:30 pm</p>
-</header>
+<div id="panelAdmin" style="display:none;" class="container my-4">
+  <h3>🔐 Administración</h3>
 
+  <div id="loginAdmin">
+    <input type="password" id="claveAdmin" class="form-control mb-2" placeholder="Clave de administrador">
+    <button class="btn btn-danger" onclick="loginAdmin()">Entrar</button>
+  </div>
+
+  <div id="contenidoAdmin" style="display:none;">
+
+    <h5 class="mt-3">📦 Productos</h5>
+    <ul id="listaProductosAdmin" class="list-group mb-3"></ul>
+
+    <h5>🍚 Complementos</h5>
+    <ul id="listaComplementosAdmin" class="list-group mb-3"></ul>
+
+    <h5>🌶️ Aderezos</h5>
+    <ul id="listaAderezosAdmin" class="list-group mb-3"></ul>
+    
+    <h5>🥤 Refrescos</h5>
+<ul id="listaRefrescosAdmin" class="list-group mb-3"></ul>
+
+
+    <button class="btn btn-success w-100" onclick="guardarEstados(); location.reload();">
+      💾 Guardar y salir
+    </button>
+    <h5 class="mt-4">💲 Precios</h5>
+<ul id="listaPreciosAdmin" class="list-group mb-3"></ul>
+
+<button class="btn btn-success w-100" onclick="guardarPrecios()">
+  💾 Guardar precios
+</button>
+
+  </div>
+</div>
+
+<header class="hero text-white">
+  <div class="container py-4">
+    <h1 class="fw-bold display-5" style="text-shadow: 2px 2px 6px black;">
+      🍗 Pollos y Carnes Asadas
+    </h1>
+
+    <p class="fs-5" style="text-shadow: 1px 1px 4px black;">
+      Pedidos a domicilio
+    </p>
+
+    <p class="fs-6" style="text-shadow: 1px 1px 4px black;">
+      <strong>Horario de atención: </strong>Jueves a Lunes de 10:30 am a 7:30 pm
+    </p>
+  </div>
+</header>
 <div class="container my-4">
 
 <h3 class="section-title">🍗 Pollos</h3>
@@ -55,23 +139,39 @@
 <h4>Total: $<span id="total">0</span></h4>
 
 <hr>
+<div class="form-check mb-2">
+  <input class="form-check-input" type="checkbox" id="recogerLocal" onchange="toggleEnvio()">
+  <label class="form-check-label">
+    🏪 Recogeré el pedido en el local 
+    <span class="text-muted">(si eliges esta opción, no es necesario llenar los datos de envío)</span>
+  </label>
+</div>
 
 <h3 class="text-danger">📍 Datos de envío</h3>
-<input class="form-control mb-2" id="direccion" placeholder="Dirección de entrega">
 <button class="btn btn-warning w-100 mb-2" onclick="obtenerUbicacion()">
 📍 Compartir ubicación actual
 </button>
 
-<p id="info-envio"></p>
+<p class="text-muted small">
+Es importante escribir correctamente tu dirección y compartir tu ubicación.
+<br>
+Incluye:
+<br>• Calle
+<br>• Número de casa o edificio
+<br>• Número de departamento (si aplica)
+<br>• Referencias si es necesario
+</p>
 
+<input class="form-control mb-2" id="direccion" placeholder="Dirección de entrega">
+
+<p id="info-envio"></p>
 <p id="distancia"></p>
 <p id="costoEnvio"></p>
-<!-- AVISO ENVÍO -->
+
 <p class="text-danger fw-bold">
   El costo de envío depende de la ubicación y la distancia.
 </p>
 
-<!-- MÉTODO DE PAGO -->
 <select class="form-select mb-2" id="metodoPago" onchange="cambiarMetodoPago()">
   <option value="">Selecciona método de pago</option>
   <option value="efectivo">Efectivo</option>
@@ -79,12 +179,10 @@
   <option value="transferencia">Transferencia</option>
 </select>
 
-<!-- EFECTIVO -->
 <div id="divEfectivo" style="display:none;">
   <input class="form-control mb-2" id="pago" placeholder="¿Con cuánto paga?">
 </div>
 
-<!-- TARJETA O TRANSFERENCIA -->
 <div id="divElectronico" style="display:none;">
   <p class="text-primary fw-bold">
     Las instrucciones de pago se enviarán una vez recibido su pedido.
@@ -113,6 +211,7 @@
 <div id="mensaje-agregado">¡Agregado al carrito!</div>
 
 <script>
+
 function cambiarMetodoPago(){
   let metodo = document.getElementById("metodoPago").value;
   let efectivo = document.getElementById("divEfectivo");
@@ -125,6 +224,24 @@ function cambiarMetodoPago(){
     efectivo.style.display = "block";
   } else if(metodo === "tarjeta" || metodo === "transferencia"){
     electronico.style.display = "block";
+  }
+}
+function toggleEnvio(){
+  let check = document.getElementById("recogerLocal").checked;
+
+  if(check){
+    document.getElementById("direccion").value = "";
+    document.getElementById("direccion").disabled = true;
+
+    document.getElementById("info-envio").innerText = "Se recogerá en el local.";
+    document.getElementById("distancia").innerText = "";
+    document.getElementById("costoEnvio").innerText = "";
+  } else {
+    document.getElementById("direccion").disabled = false;
+
+    document.getElementById("info-envio").innerText = "";
+    document.getElementById("distancia").innerText = "";
+    document.getElementById("costoEnvio").innerText = "";
   }
 }
 </script>

@@ -1,3 +1,85 @@
+
+let productosActivos = JSON.parse(localStorage.getItem("productosActivos")) || {};
+let complementosActivos = JSON.parse(localStorage.getItem("complementosActivos")) || {
+  "Arroz": true,
+  "Spaghetti": true,
+  "Frijoles": true
+};
+let precios = JSON.parse(localStorage.getItem("precios")) || {
+  pollo1:160,
+  pollo2:80,
+
+  cos1:280,
+  cos2:140,
+  cos3:70,
+  cos4:55,
+
+  lon1:280,
+  lon2:140,
+  lon3:70,
+
+  ali1:280,
+  ali2:140,
+  ali3:50,
+
+  coch1:250,
+  coch2:130,
+  coch3:70,
+
+  pro1:210,
+  pro2:170,
+  pro3:190,
+  pro4:275,
+  pro5:275,
+  pro6:275,
+
+  ext1:30,
+  ext2:50,
+  ext3:30,
+  ext4:50,
+  ext5:40,
+  ext6:80,
+  ext7:55,
+  ext8:0,
+  ext9:0,
+  ext10:15,
+  ext11:0,
+  ext12:20,
+  ext13:35
+};
+let aderezosActivos = JSON.parse(localStorage.getItem("aderezosActivos")) || {
+ "BBQ": true,
+ "BBQ Picante": true,
+ "Tamarindo": true,
+ "Piña Habanero": true,
+ "Mango Habanero": true,
+ "Habanero": true,
+ "Búfalo": true,
+ "Chiltipín": true,
+ "Ranch": true,
+ "Cacahuate": true
+};
+let refrescosActivos = JSON.parse(localStorage.getItem("refrescosActivos")) || {
+  "Pepsi": true,
+  "Mirinda": true,
+  "Sangría": true,
+  "7Up": true
+};
+function generarOpcionesComplementos(){
+  let html = `<option value="">Complemento</option>`;
+  Object.keys(complementosActivos).forEach(c=>{
+    html += `<option ${complementosActivos[c] ? "" : "disabled"}>${c}</option>`;
+  });
+  return html;
+}
+
+function generarOpcionesAderezos(){
+  let html = `<option value="">Aderezo</option>`;
+  Object.keys(aderezosActivos).forEach(a=>{
+    html += `<option ${aderezosActivos[a] ? "" : "disabled"}>${a}</option>`;
+  });
+  return html;
+}
 let carrito = [];
 let total = 0;
 // ===== UBICACIÓN SUPER POLLO =====
@@ -6,16 +88,209 @@ let envio = 0;
 let km = 0;
 let linkMaps = "";
 
-const aderezos = [
- "BBQ","BBQ Picante","Tamarindo",
- "Piña Habanero","Mango Habanero",
- "Habanero","Búfalo","Chiltipín","Ranch","Cacahuate"
-];
+
 
 // ================= UTIL =================
 function setPrecio(id, precio){
   document.getElementById("precio-"+id).innerText = "$"+precio;
 }
+
+function abrirAdmin(){
+  document.getElementById("panelAdmin").style.display = "block";
+  window.scrollTo(0,0);
+}
+
+function loginAdmin(){
+  const clave = document.getElementById("claveAdmin").value;
+  if(clave !== "admin2026"){
+    alert("Clave incorrecta");
+    return;
+  }
+  document.getElementById("loginAdmin").style.display = "none";
+  document.getElementById("contenidoAdmin").style.display = "block";
+  cargarAdmin();
+}
+
+function guardarEstados(){
+  localStorage.setItem("productosActivos", JSON.stringify(productosActivos));
+  localStorage.setItem("complementosActivos", JSON.stringify(complementosActivos));
+  localStorage.setItem("aderezosActivos", JSON.stringify(aderezosActivos));
+  localStorage.setItem("refrescosActivos", JSON.stringify(refrescosActivos));
+}
+
+function cargarAdmin(){
+  const lista = document.getElementById("listaProductosAdmin");
+  lista.innerHTML = "";
+
+  document.querySelectorAll(".card").forEach(card=>{
+    const nombre = card.querySelector("h5").innerText;
+
+    if(productosActivos[nombre] === undefined){
+      productosActivos[nombre] = true;
+    }
+
+    lista.innerHTML += `
+      <li class="list-group-item d-flex justify-content-between">
+        ${nombre}
+        <button class="btn btn-sm ${productosActivos[nombre]?"btn-danger":"btn-success"}"
+        onclick="toggleProducto('${nombre}')">
+        ${productosActivos[nombre]?"Desactivar":"Activar"}
+        </button>
+      </li>`;
+  });
+
+  const listaComp = document.getElementById("listaComplementosAdmin");
+  listaComp.innerHTML = "";
+
+  Object.keys(complementosActivos).forEach(c=>{
+    listaComp.innerHTML += `
+      <li class="list-group-item d-flex justify-content-between">
+        ${c}
+        <button class="btn btn-sm ${complementosActivos[c]?"btn-danger":"btn-success"}"
+        onclick="toggleComplemento('${c}')">
+        ${complementosActivos[c]?"Desactivar":"Activar"}
+        </button>
+      </li>`;
+  });
+const listaAdr = document.getElementById("listaAderezosAdmin");
+listaAdr.innerHTML = "";
+
+Object.keys(aderezosActivos).forEach(a=>{
+  listaAdr.innerHTML += `
+    <li class="list-group-item d-flex justify-content-between">
+      ${a}
+      <button class="btn btn-sm ${aderezosActivos[a]?"btn-danger":"btn-success"}"
+      onclick="toggleAderezo('${a}')">
+      ${aderezosActivos[a]?"Desactivar":"Activar"}
+      </button>
+    </li>`;
+});
+const listaRef = document.getElementById("listaRefrescosAdmin");
+listaRef.innerHTML = "";
+
+Object.keys(refrescosActivos).forEach(r=>{
+  listaRef.innerHTML += `
+    <li class="list-group-item d-flex justify-content-between">
+      ${r}
+      <button class="btn btn-sm ${refrescosActivos[r]?"btn-danger":"btn-success"}"
+      onclick="toggleRefresco('${r}')">
+      ${refrescosActivos[r]?"Desactivar":"Activar"}
+      </button>
+    </li>`;
+});
+const listaPrecios = document.getElementById("listaPreciosAdmin");
+listaPrecios.innerHTML = "";
+
+Object.keys(precios).forEach(id=>{
+  const card = document.getElementById(id);
+  if(!card) return;
+
+  const nombre = card.querySelector("h5").innerText;
+
+  listaPrecios.innerHTML += `
+    <li class="list-group-item">
+      <strong>${nombre}</strong>
+      <input type="number" 
+             class="form-control mt-1"
+             value="${precios[id]}"
+             onchange="precios['${id}']=Number(this.value)">
+    </li>
+  `;
+});
+  guardarEstados();
+}
+
+function toggleRefresco(nombre){
+  refrescosActivos[nombre] = !refrescosActivos[nombre];
+
+  document.querySelectorAll("select option").forEach(opt=>{
+    if(opt.innerText === nombre){
+      opt.disabled = !refrescosActivos[nombre];
+    }
+  });
+
+  guardarEstados();
+  cargarAdmin();
+}
+function toggleProducto(nombre){
+  productosActivos[nombre] = !productosActivos[nombre];
+
+  document.querySelectorAll(".card").forEach(card=>{
+    if(card.querySelector("h5").innerText === nombre){
+      const btn = card.querySelector("button");
+      if(!productosActivos[nombre]){
+        btn.disabled = true;
+        btn.innerText = "No disponible";
+        card.classList.add("opacity-50");
+      } else {
+        btn.disabled = false;
+        btn.innerText = "Agregar";
+        card.classList.remove("opacity-50");
+      }
+    }
+  });
+
+  guardarEstados();
+  cargarAdmin();
+}
+
+function toggleComplemento(nombre){
+  complementosActivos[nombre] = !complementosActivos[nombre];
+
+  document.querySelectorAll("select option").forEach(opt=>{
+    if(opt.innerText === nombre){
+      opt.disabled = !complementosActivos[nombre];
+    }
+  });
+
+  guardarEstados();
+  cargarAdmin();
+}
+function toggleAderezo(nombre){
+  aderezosActivos[nombre] = !aderezosActivos[nombre];
+
+  document.querySelectorAll("select option").forEach(opt=>{
+    if(opt.innerText === nombre){
+      opt.disabled = !aderezosActivos[nombre];
+    }
+  });
+
+  guardarEstados();
+  cargarAdmin();
+}
+function guardarPrecios(){
+  localStorage.setItem("precios", JSON.stringify(precios));
+  alert("Precios guardados 💾");
+}
+function aplicarBloqueos(){
+  document.querySelectorAll(".card").forEach(card=>{
+    const nombre = card.querySelector("h5").innerText;
+    const btn = card.querySelector("button");
+
+    if(productosActivos[nombre] === false){
+      btn.disabled = true;
+      btn.innerText = "No disponible";
+      card.classList.add("opacity-50");
+    }
+  });
+
+  document.querySelectorAll("select option").forEach(opt=>{
+    if(complementosActivos[opt.innerText] === false){
+      opt.disabled = true;
+    }
+  });
+  document.querySelectorAll("select option").forEach(opt=>{
+  if(aderezosActivos[opt.innerText] === false){
+    opt.disabled = true;
+  }
+});
+document.querySelectorAll("select option").forEach(opt=>{
+  if(refrescosActivos[opt.innerText] === false){
+    opt.disabled = true;
+  }
+});
+}
+
 
 // ================= COMPLEMENTOS =================
 function complementoHTML(id, tipo) {
@@ -30,14 +305,11 @@ function complementoHTML(id, tipo) {
   }
 
   if (tipo === "medio") {
-    return `
+  return `
     <select class="form-select mb-2" id="comp-${id}">
-      <option value="">Complemento</option>
-      <option>Arroz</option>
-      <option>Spaghetti</option>
-      <option>Frijoles</option>
+      ${generarOpcionesComplementos()}
     </select>`;
-  }
+}
   return "";
 }
 
@@ -47,25 +319,19 @@ function mostrarComplementos(id) {
 
   if (tipo === "uno") {
     div.innerHTML = `
-    <select class="form-select mb-2" id="comp1-${id}">
-      <option>Arroz</option>
-      <option>Spaghetti</option>
-      <option>Frijoles</option>
-    </select>`;
+      <select class="form-select mb-2" id="comp1-${id}">
+        ${generarOpcionesComplementos()}
+      </select>`;
   }
 
   if (tipo === "mitad") {
     div.innerHTML = `
-    <select class="form-select mb-2" id="comp1-${id}">
-      <option>Arroz</option>
-      <option>Spaghetti</option>
-      <option>Frijoles</option>
-    </select>
-    <select class="form-select mb-2" id="comp2-${id}">
-      <option>Arroz</option>
-      <option>Spaghetti</option>
-      <option>Frijoles</option>
-    </select>`;
+      <select class="form-select mb-2" id="comp1-${id}">
+        ${generarOpcionesComplementos()}
+      </select>
+      <select class="form-select mb-2" id="comp2-${id}">
+        ${generarOpcionesComplementos()}
+      </select>`;
   }
 }
 // ================= ubicacion =================
@@ -123,6 +389,7 @@ function calcularDistancia(lat1, lon1, lat2, lon2){
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
 }
+
 // ================= POLLO - SABOR =================
 function saborPolloHTML(id, nombre, maxPollos=1){
   // maxPollos = cuántos pollos puede llevar (1 o 2)
@@ -148,7 +415,7 @@ function seleccionarSabor(id, maxPollos){
     let html = `<p>Elige aderezo para bañar:</p>`;
     for(let i=1; i<=maxPollos; i++){
       html += `<select class="form-select mb-2" id="adrBana-${id}-${i}">
-        ${aderezos.map(a=>`<option value="${a}">${a}</option>`).join("")}
+        ${generarOpcionesAderezos()}
       </select>`;
     }
     div.innerHTML = html;
@@ -167,7 +434,6 @@ function complementoExtraHTML(id) {
     <div id="precio-${id}"></div>
     <div id="comps-${id}"></div>`;
 }
-
 function seleccionarTamExtra(id) {
   const tam = document.getElementById("tam-" + id).value;
   const precioDiv = document.getElementById("precio-" + id);
@@ -177,10 +443,7 @@ function seleccionarTamExtra(id) {
     precioDiv.innerHTML = `<p>Precio: <strong>$30</strong></p>`;
     compDiv.innerHTML = `
       <select class="form-select mb-2" id="comp-${id}">
-        <option value="">Complemento</option>
-        <option>Arroz</option>
-        <option>Spaghetti</option>
-        <option>Frijoles</option>
+        ${generarOpcionesComplementos()}
       </select>`;
   }
 
@@ -188,10 +451,7 @@ function seleccionarTamExtra(id) {
     precioDiv.innerHTML = `<p>Precio: <strong>$50</strong></p>`;
     compDiv.innerHTML = `
       <select class="form-select mb-2" id="comp-${id}">
-        <option value="">Complemento</option>
-        <option>Arroz</option>
-        <option>Spaghetti</option>
-        <option>Frijoles</option>
+        ${generarOpcionesComplementos()}
       </select>`;
   }
 }
@@ -223,18 +483,21 @@ function actualizarPrecioTortilla(id) {
 // ================= ADEREZOS (ALITAS ) =================
 function aderezosHTML(id, max){
   let html = `<p><strong>Elige hasta ${max} aderezos:</strong></p>`;
-  aderezos.forEach(a=>{
-    html += `
-      <label>
-        <input type="checkbox"
-               name="adr_${id}"
-               value="${a}"
-               onclick="limitarAderezos('${id}', ${max})">
-        ${a}
-      </label><br>
-    `;
+  Object.keys(aderezosActivos).forEach(a=>{
+    if(aderezosActivos[a]){
+      html += `
+        <label>
+          <input type="checkbox"
+                 name="adr_${id}"
+                 value="${a}"
+                 onclick="limitarAderezos('${id}', ${max})">
+          ${a}
+        </label><br>
+      `;
+    }
   });
   return html;
+
 }
 
 // Limita la cantidad de aderezos
@@ -253,9 +516,11 @@ const refrescos = ["Pepsi", "Mirinda", "Sangría", "7Up"];
 function refrescoHTML(id){
   let html = `<select class="form-select mb-2" id="refresco-${id}">
     <option value="">Seleccione refresco</option>`;
-  refrescos.forEach(r=>{
-    html += `<option value="${r}">${r}</option>`;
+    
+  Object.keys(refrescosActivos).forEach(r=>{
+    html += `<option ${refrescosActivos[r] ? "" : "disabled"}>${r}</option>`;
   });
+
   html += `</select>`;
   return html;
 }
@@ -263,21 +528,13 @@ function refrescoHTML(id){
 function aderezosExtraHTML(id) {
   return `
     <select class="form-select mb-2" id="adrExtra-${id}" multiple onchange="seleccionarAderezosExtra('${id}')">
-      <option>BBQ</option>
-	  <option>Ranch</option>
-      <option>BBQ Picante</option>
-      <option>Tamarindo</option>
-      <option>Piña Habanero</option>
-      <option>Mango Habanero</option>
-      <option>Habanero</option>
-      <option>Búfalo</option>
-      <option>Chiltipín</option>
-      <option>Cacahuate</option>
+      ${Object.keys(aderezosActivos).map(a=>`
+        <option ${aderezosActivos[a]?"":"disabled"}>${a}</option>
+      `).join("")}
     </select>
     <div id="precio-${id}"></div>
   `;
 }
-
 function seleccionarAderezosExtra(id){
   const select = document.getElementById("adrExtra-"+id);
   const seleccionados = Array.from(select.selectedOptions).map(opt => opt.value);
@@ -320,9 +577,16 @@ const descripciones = {
   ext9: "Selecciona cantidad de tortillas.",
   ext10: "Cebollon condimentado con : Mantequilla , pimienta y sal.",
   ext11: "Selecciona tamaño de complemento extra y su complemento.",
+  ext12: "Agua de sabor natural (solo un sabor por día, puede variar: jamaica, horchata, limón, etc.).",
+ext13: "Refrescos de 2L de la familia Pepsi (Pepsi, 7Up, Mirinda, Manzanita y Sangría).",
 };
 // ================= PRODUCTO =================
 function crearProducto(id, nombre, precio, img, reglas = {}) {
+
+  // SI NO EXISTE EN precios, lo inicializa
+  if (precios[id] === undefined) {
+    precios[id] = precio;
+  }
 
   let complementoHTMLFinal = "";
 
@@ -355,7 +619,7 @@ function crearProducto(id, nombre, precio, img, reglas = {}) {
     complementoHTMLFinal += complementoHTML(id, reglas.complemento);
   }
 
-  // ===== ADEREZOS (ALITAS) =====
+  // ===== ADEREZOS =====
   if (reglas.aderezo) {
     complementoHTMLFinal += aderezosHTML(id, reglas.max || 1);
   }
@@ -371,77 +635,81 @@ function crearProducto(id, nombre, precio, img, reglas = {}) {
   if (nombre === "Aderezo Extra") complementoHTMLFinal = aderezosExtraHTML(id);
 
   return `
-    <div class="col-md-4 mb-3" id="${id}">
-      <div class="card h-100">
+    <div class="col-md-4 mb-3">
+      <div class="card h-100" id="${id}">
         <img src="${img}" class="card-img-top">
         <div class="card-body">
           <h5>${nombre}</h5>
           <p class="text-muted">${descripciones[id] || ""}</p>
-          <p id="precio-${id}">$${precio}</p>
+          <p id="precio-${id}">$${precios[id]}</p>
 
           ${complementoHTMLFinal}
 
           <button class="btn btn-danger w-100"
-            onclick="agregar('${nombre}', ${precio}, '${id}')">
+            onclick="agregar('${nombre}', ${precios[id]}, '${id}')">
             Agregar
           </button>
         </div>
       </div>
     </div>`;
 }
-
 // ================= MENÚ =================
 // ================= MENÚ POLLO =================
 document.getElementById("pollo").innerHTML =
-  crearProducto("pollo1", "Pollo Entero", 160, "img/1POLLO.jpeg", { complemento: "entero" }) +
-  crearProducto("pollo2", "½ Pollo", 80, "img/MEDIOPOLLO.jpeg", { complemento: "medio" });
+  crearProducto("pollo1", "Pollo Entero", precios.pollo1, "img/1POLLO.jpeg", { complemento: "entero" }) +
+  crearProducto("pollo2", "½ Pollo", precios.pollo2, "img/MEDIOPOLLO.jpeg", { complemento: "medio" });
 
 
 document.getElementById("costillas").innerHTML =
-crearProducto("cos1","Costillas 1 Kg",280,"img/KGCOSTILLA.jpeg",{complemento:"entero"}) +
-crearProducto("cos2","½ Kg Costillas",140,"img/MEDIOCOSTILLAS.jpeg",{complemento:"medio"}) +
-crearProducto("cos3","¼ Kg Costillas",70,"img/CUARTOCOSTILLAS.jpeg") +
-crearProducto("cos4","Orden de Costillas",55,"img/ORDCOSTILLA.jpeg",{aderezo:true});
+crearProducto("cos1","Costillas 1 Kg", precios.cos1,"img/KGCOSTILLA.jpeg",{complemento:"entero"}) +
+crearProducto("cos2","½ Kg Costillas", precios.cos2,"img/MEDIOCOSTILLAS.jpeg",{complemento:"medio"}) +
+crearProducto("cos3","¼ Kg Costillas", precios.cos3,"img/CUARTOCOSTILLAS.jpeg") +
+crearProducto("cos4","Orden de Costillas", precios.cos4,"img/ORDCOSTILLA.jpeg",{aderezo:true});
 
 document.getElementById("longaniza").innerHTML =
-crearProducto("lon1","Longaniza 1 Kg",280,"img/KGLONGANIZA.jpeg",{complemento:"entero"}) +
-crearProducto("lon2","½ Kg Longaniza",140,"img/MEDIOLONGANIZA.jpeg",{complemento:"medio"}) +
-crearProducto("lon3","¼ Kg Longaniza",70,"img/CUARTOLONGANIZA.jpeg");
+crearProducto("lon1","Longaniza 1 Kg", precios.lon1,"img/KGLONGANIZA.jpeg",{complemento:"entero"}) +
+crearProducto("lon2","½ Kg Longaniza", precios.lon2,"img/MEDIOLONGANIZA.jpeg",{complemento:"medio"}) +
+crearProducto("lon3","¼ Kg Longaniza", precios.lon3,"img/CUARTOLONGANIZA.jpeg");
 
 document.getElementById("alitas").innerHTML =
-crearProducto("ali1","Alitas 1 Kg",280,"img/KGALITAS.jpg",{aderezo:true, max:4}) +
-crearProducto("ali2","½ Kg Alitas",140,"img/KGALITAS.jpg",{aderezo:true, max:2}) +
-crearProducto("ali3","Orden de Alitas",50,"img/ALITAS.jpeg",{aderezo:true, max:1});
+crearProducto("ali1","Alitas 1 Kg", precios.ali1,"img/KGALITAS.jpg",{aderezo:true, max:4}) +
+crearProducto("ali2","½ Kg Alitas", precios.ali2,"img/KGALITAS.jpg",{aderezo:true, max:2}) +
+crearProducto("ali3","Orden de Alitas", precios.ali3,"img/ALITAS.jpeg",{aderezo:true, max:1});
 
 document.getElementById("cochinita").innerHTML =
-crearProducto("coch1","Cochinita 1 Kg",250,"img/KGCOCHINITA.jpeg") +
-crearProducto("coch2","½ Kg Cochinita",130,"img/KGCOCHINITA.jpeg") +
-crearProducto("coch3","¼ Kg Cochinita",70,"img/CUARTOCOCHINITA.jpeg");
+crearProducto("coch1","Cochinita 1 Kg", precios.coch1,"img/KGCOCHINITA.jpeg") +
+crearProducto("coch2","½ Kg Cochinita", precios.coch2,"img/KGCOCHINITA.jpeg") +
+crearProducto("coch3","¼ Kg Cochinita", precios.coch3,"img/CUARTOCOCHINITA.jpeg");
 
 document.getElementById("promos").innerHTML =
-crearProducto("pro1","Pollo  Papas",210,"img/POLLOSQPAPAS.jpeg",{complemento:"medio"}) +
-crearProducto("pro2","Súper Pollo",170,"img/SUPERPOLLO.jpeg",{complemento:"medio"}) +
-crearProducto("pro3","Pollo + Refresco",190,"img/POLLOREFRESCO.jpeg",{complemento:"entero", refresco:true}) +
-crearProducto("pro4","Pollo + Costillas",275,"img/1POLLO.jpeg",{complemento:"entero"}) +
-crearProducto("pro5","2 Pollos",275,"img/1POLLO.jpeg",{complemento:"entero"}) +
-crearProducto("pro6","Pollo + Longaniza",275,"img/KGLONGANIZA.jpeg",{complemento:"entero"});
+crearProducto("pro1","Pollo  Papas", precios.pro1,"img/POLLOSQPAPAS.jpeg",{complemento:"medio"}) +
+crearProducto("pro2","Súper Pollo", precios.pro2,"img/SUPERPOLLO.jpeg",{complemento:"medio"}) +
+crearProducto("pro3","Pollo + Refresco", precios.pro3,"img/POLLOREFRESCO.jpeg",{complemento:"entero", refresco:true}) +
+crearProducto("pro4","Pollo + Costillas", precios.pro4,"img/1POLLO.jpeg",{complemento:"entero"}) +
+crearProducto("pro5","2 Pollos", precios.pro5,"img/1POLLO.jpeg",{complemento:"entero"}) +
+crearProducto("pro6","Pollo + Longaniza", precios.pro6,"img/KGLONGANIZA.jpeg",{complemento:"entero"});
 
 document.getElementById("extras").innerHTML =
-crearProducto("ext1","Papas Adobadas ½ L",30,"img/PAPASADOBADAS.jpeg") +
-crearProducto("ext2","Papas Adobadas 1 L",50,"img/PAPASADOBADAS.jpeg") +
-crearProducto("ext3","Papas con Rajas ½ L",30,"img/PAPASRAJAS.jpeg") +
-crearProducto("ext4","Papas con Rajas 1 L",50,"img/PAPASRAJAS.jpeg") +
-crearProducto("ext5","Ensalada Manzana ½ L",40,"img/ENSALDAMANZANA.jpeg") +
-crearProducto("ext6","Ensalada Manzana 1 L",80,"img/LTMANZANA.jpeg") +
-crearProducto("ext7","Papas Fritas Caseras",55,"img/BOLASAPAPAS.jpeg",{cantidad:true}) +
-crearProducto("ext8","Aderezo Extra",0,"img/ADEREZOS.jpg") +
-  crearProducto("ext9","Tortillas",0,"img/TORTILLAS.jpeg",{cantidad:true})  +
-crearProducto("ext10","Cebollon Condimentado",15,"img/CEBOLLON.jpeg",{cantidad:true}) +
-crearProducto("ext11","Complemento Extra",0,"img/COMPLEMENTO.png")+
-crearProducto("ext12","Agua natural de sabor 1L",25,"img/AGUA.JPG")+
-crearProducto("ext13","Refresco 2L",35,"img/REFEZCOS.JPG",{refresco:true});
+crearProducto("ext1","Papas Adobadas ½ L", precios.ext1,"img/PAPASADOBADAS.jpeg") +
+crearProducto("ext2","Papas Adobadas 1 L", precios.ext2,"img/PAPASADOBADAS.jpeg") +
+crearProducto("ext3","Papas con Rajas ½ L", precios.ext3,"img/PAPASRAJAS.jpeg") +
+crearProducto("ext4","Papas con Rajas 1 L", precios.ext4,"img/PAPASRAJAS.jpeg") +
+crearProducto("ext5","Ensalada Manzana ½ L", precios.ext5,"img/ENSALDAMANZANA.jpeg") +
+crearProducto("ext6","Ensalada Manzana 1 L", precios.ext6,"img/LTMANZANA.jpeg") +
+crearProducto("ext7","Papas Fritas Caseras", precios.ext7,"img/BOLASAPAPAS.jpeg",{cantidad:true}) +
+crearProducto("ext8","Aderezo Extra", precios.ext8,"img/ADEREZOS.jpg") +
+crearProducto("ext9","Tortillas", precios.ext9,"img/TORTILLAS.jpeg",{cantidad:true}) +
+crearProducto("ext10","Cebollon Condimentado", precios.ext10,"img/CEBOLLON.jpeg",{cantidad:true}) +
+crearProducto("ext11","Complemento Extra", precios.ext11,"img/COMPLEMENTO.png")+
+crearProducto("ext12","Agua natural de sabor 1L", precios.ext12,"img/AGUA.jpeg")+
+crearProducto("ext13","Refresco 2L", precios.ext13,"img/REFREZCOS.jpeg",{refresco:true});
 // ================= CARRITO =================
 function agregar(nombre, precio, id){
+  if(productosActivos[nombre] === false){
+    alert("Este producto no está disponible");
+    return;
+  }
+
   let texto = nombre;
   let subtotal = precio;
 
@@ -458,6 +726,7 @@ function agregar(nombre, precio, id){
 
   if (cMedio)
     texto += " | "+cMedio.value;
+
 	// ===== SABOR DEL POLLO =====
 const sabor = document.getElementById("sabor-"+id);
 let extraBana = 0;
@@ -580,16 +849,25 @@ function enviarWhats(){
     msg += `- ${p.texto} $${p.precio}\n`;
   });
 
-  msg += `\nDistancia: ${km.toFixed(2)} km`;
-  msg += `\nCosto de envío: $${envio}`;
-  msg += `\nUbicación: ${linkMaps}`;
-  msg += `\nTotal: $${total + envio}`;
-
   const direccion = document.getElementById("direccion").value;
-  msg += `\nDirección: ${direccion}`;
-
   const metodo = document.getElementById("metodoPago").value;
+  const recoger = document.getElementById("recogerLocal").checked;
+
   if(!metodo) return alert("Selecciona método de pago");
+
+  if(recoger){
+    msg += `\n📍 Se recogerá en el local.`;
+    msg += `\nTotal: $${total}`;
+  }else{
+    if(!direccion) return alert("Escribe tu dirección");
+    if(!linkMaps) return alert("Debes compartir tu ubicación");
+
+    msg += `\nDistancia: ${km.toFixed(2)} km`;
+    msg += `\nCosto de envío: $${envio}`;
+    msg += `\nUbicación: ${linkMaps}`;
+    msg += `\nDirección: ${direccion}`;
+    msg += `\nTotal: $${total + envio}`;
+  }
 
   msg += `\nMétodo de pago: ${metodo}`;
 
@@ -604,6 +882,7 @@ function enviarWhats(){
 }
 
 window.addEventListener("load", () => {
+  aplicarBloqueos();
   const cards = document.querySelectorAll(".card");
   cards.forEach((c,i) => {
     setTimeout(() => {

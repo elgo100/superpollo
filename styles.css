@@ -18,24 +18,27 @@ body {
 	object-fit: cover;
 }
 /* ======================= Mensaje agregado ======================= */
-#mensaje-agregado {
+#mensaje-agregado{
   position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #28a745;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-weight: bold;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #198754;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
   opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.5s ease;
+  transition: all 0.4s ease;
   z-index: 9999;
+  white-space: nowrap;   /* una sola línea */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-#mensaje-agregado.mostrar {
+#mensaje-agregado.mostrar{
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 
